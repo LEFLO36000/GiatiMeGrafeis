@@ -1,5 +1,3 @@
-const WORKER_URL = "https://telegram-form.lefteriseriktsis.workers.dev";
-
 const messageElement = document.getElementById("message");
 const form = document.getElementById("requestForm");
 const nameInput = document.getElementById("name");
@@ -7,6 +5,10 @@ const reasonInput = document.getElementById("reason");
 const submitButton = document.getElementById("submitButton");
 const statusElement = document.getElementById("status");
 
+
+// ==========================================
+// LOAD MESSAGE.JSON
+// ==========================================
 
 async function loadMessage() {
 
@@ -17,7 +19,7 @@ async function loadMessage() {
         });
 
         if (!response.ok) {
-            throw new Error("Δεν ήταν δυνατή η φόρτωση του MESSAGE.json");
+            throw new Error("Δεν ήταν δυνατή η φόρτωση του MESSAGE.json.");
         }
 
         const data = await response.json();
@@ -32,77 +34,177 @@ async function loadMessage() {
 
         console.error(error);
 
-        messageElement.textContent = "Δεν ήταν δυνατή η φόρτωση του μηνύματος.";
+        messageElement.textContent =
+            "Δεν ήταν δυνατή η φόρτωση του μηνύματος.";
     }
 }
 
 
-form.addEventListener("submit", async function (event) {
+// ==========================================
+// GET SAVED RESPONSES
+// ==========================================
+
+function getResponses() {
+
+    const saved = localStorage.getItem("Response.json");
+
+    if (!saved) {
+        return [];
+    }
+
+    try {
+
+        const responses = JSON.parse(saved);
+
+        if (!Array.isArray(responses)) {
+            return [];
+        }
+
+        return responses;
+
+    } catch (error) {
+
+        console.error(error);
+
+        return [];
+    }
+}
+
+
+// ==========================================
+// SAVE RESPONSE
+// ==========================================
+
+function saveResponse(name, reason) {
+
+    const responses = getResponses();
+
+    const newResponse = {
+        name: name,
+        reason: reason,
+        date: new Date().toISOString()
+    };
+
+    responses.push(newResponse);
+
+    localStorage.setItem(
+        "Response.json",
+        JSON.stringify(responses, null, 4)
+    );
+
+    return newResponse;
+}
+
+
+// ==========================================
+// DOWNLOAD RESPONSE.JSON
+// ==========================================
+
+function downloadResponses() {
+
+    const responses = getResponses();
+
+    const json = JSON.stringify(
+        responses,
+        null,
+        4
+    );
+
+    const blob = new Blob(
+        [json],
+        {
+            type: "application/json"
+        }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "Response.json";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+}
+
+
+// ==========================================
+// FORM SUBMISSION
+// ==========================================
+
+form.addEventListener("submit", function (event) {
 
     event.preventDefault();
 
     const name = nameInput.value.trim();
     const reason = reasonInput.value.trim();
 
+
+    // NAME REQUIRED
     if (!name) {
 
-        statusElement.textContent = "Συμπλήρωσε το όνομα.";
+        statusElement.textContent =
+            "Το όνομα είναι υποχρεωτικό.";
 
         nameInput.focus();
 
         return;
     }
 
+
+    // REASON REQUIRED
     if (!reason) {
 
-        statusElement.textContent = "Συμπλήρωσε την αιτιολογία.";
+        statusElement.textContent =
+            "Η αιτιολογία είναι υποχρεωτική.";
 
         reasonInput.focus();
 
         return;
     }
 
+
     submitButton.disabled = true;
 
-    statusElement.textContent = "Αποστολή...";
+    statusElement.textContent =
+        "Αποθήκευση...";
+
 
     try {
 
-        const response = await fetch(WORKER_URL, {
+        saveResponse(
+            name,
+            reason
+        );
 
-            method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                name: name,
-                reason: reason
-            })
-
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-
-            throw new Error(
-                data.error || "Η αποστολή απέτυχε."
-            );
-        }
-
-        statusElement.textContent = "Το μήνυμα στάλθηκε επιτυχώς.";
+        // CLEAR FIELDS
 
         nameInput.value = "";
         reasonInput.value = "";
+
+
+        statusElement.textContent =
+            "Η απάντηση αποθηκεύτηκε.";
+
+
+        // DOWNLOAD UPDATED RESPONSE.JSON
+
+        downloadResponses();
+
 
     } catch (error) {
 
         console.error(error);
 
         statusElement.textContent =
-            "Παρουσιάστηκε σφάλμα κατά την αποστολή.";
+            "Παρουσιάστηκε σφάλμα κατά την αποθήκευση.";
 
     } finally {
 
@@ -111,5 +213,9 @@ form.addEventListener("submit", async function (event) {
 
 });
 
+
+// ==========================================
+// LOAD PAGE
+// ==========================================
 
 loadMessage();
