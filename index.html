@@ -2,54 +2,31 @@
 <html lang="el">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Μήνυμα</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="style.css">
+    <title>ΛΕΓΕ ΡΕ</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="Logo.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
 
 <body>
 
-    <main class="container">
-
-        <div id="message" class="message">
-            Φόρτωση...
-        </div>
-
-        <form id="requestForm">
-
-            <div class="field">
-                <label for="name">ΟΝΟΜΑ</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Γράψε το όνομά σου"
-                    autocomplete="name"
-                    required
-                >
-            </div>
-
-            <div class="field">
-                <label for="reason">ΑΙΤΙΟΛΟΓΙΑ</label>
-                <textarea
-                    id="reason"
-                    name="reason"
-                    placeholder="Γράψε την αιτιολογία"
-                    required
-                ></textarea>
-            </div>
-
-            <button type="submit" id="submitButton">
-                ΥΠΟΒΟΛΗ
-            </button>
-
-            <div id="status"></div>
-
-        </form>
-
-    </main>
+    <div id="message">
+        Φόρτωση...
+    </div>
 
     <script src="script.js"></script>
 
