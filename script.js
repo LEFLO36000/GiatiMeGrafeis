@@ -1,50 +1,40 @@
-async function loadMessage() {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const messageElement =
-        document.getElementById("message");
+    const messageElement = document.getElementById("message");
 
-    try {
+    fetch("./MESSAGE.json?time=" + Date.now())
+        .then(function (response) {
 
-        const response = await fetch(
-            "MESSAGE.json",
-            {
-                cache: "no-store"
+            if (!response.ok) {
+                throw new Error(
+                    "HTTP " + response.status
+                );
             }
-        );
 
-        if (!response.ok) {
+            return response.json();
+        })
+        .then(function (data) {
 
-            throw new Error(
-                "Δεν ήταν δυνατή η φόρτωση του MESSAGE.json."
+            if (
+                !data ||
+                typeof data.message !== "string"
+            ) {
+                throw new Error(
+                    "Το MESSAGE.json δεν έχει σωστό format."
+                );
+            }
+
+            messageElement.textContent = data.message;
+        })
+        .catch(function (error) {
+
+            console.error(
+                "MESSAGE.json ERROR:",
+                error
             );
-        }
 
-        const data =
-            await response.json();
+            messageElement.textContent =
+                "ERROR: " + error.message;
+        });
 
-        if (
-            !data ||
-            typeof data.message !== "string"
-        ) {
-
-            throw new Error(
-                "Το MESSAGE.json δεν περιέχει έγκυρο μήνυμα."
-            );
-        }
-
-        messageElement.textContent =
-            data.message;
-
-    } catch (error) {
-
-        console.error(
-            "Σφάλμα:",
-            error
-        );
-
-        messageElement.textContent =
-            "Δεν ήταν δυνατή η φόρτωση του μηνύματος.";
-    }
-}
-
-loadMessage();
+});
