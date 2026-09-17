@@ -1,4 +1,4 @@
-const WORKER_URL = "https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev";
+const WORKER_URL = "telegram-form.lefteriseriktsis.workers.dev";
 
 const messageElement = document.getElementById("message");
 const form = document.getElementById("requestForm");
